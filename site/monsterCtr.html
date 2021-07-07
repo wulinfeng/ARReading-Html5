@@ -7,24 +7,28 @@
         <script src="Js/3rdParty/JSARToolKit.js"></script>
         <script type="text/javascript" src="Js/3rdParty/jquery-1.7.2.js"></script>
         <script type="text/javascript" src="Js/UI/dock.js"></script>
-        <script type="text/javascript" src="Js/Inception.js"></script>
-        <script src="Js/3rdParty/three.min.js"></script>
-        <script src="Js/ColladaLoader.js"></script>
-        <script src="Js/MD2CharacterComplex.js"></script>
+
+        <script src="Js/3rdParty/threejs/_old/three.min.js"></script>
+        <!--<script type="text/javascript" src="Js/3rdParty/threejs/build/three.js"></script>-->
+
+        <script src="Js/3rdParty/threejs/_old/MD2CharacterComplex.js"></script>
         <script>
-            threshold = 90;
+        // clone from http://localhost:8080/bak/ARReading-IC-R2/monsterCtr.html
+        // TODO: 是不是一个domin同时两个页面申请摄像头会有问题？
+
+        threshold = 90;
 			 var GLCanvasHeight;
             var GLCanvasWidth;
-			
+
 			var model_obj=new THREE.Object3D(),skin;
-            var video = document.createElement('video');
-            video.src = 'textures/sintel.mp4';
-            video.width = 320;
-            video.height = 240;
-            video.loop = true;
-			video.id="videos";
-            video.display = 'none';
-            video.controls = true;			
+//            var video = document.createElement('video');
+//            video.src = 'textures/sintel.mp4';
+//            video.width = 320;
+//            video.height = 240;
+//            video.loop = true;
+//			video.id="videos";
+//            video.display = 'none';
+//            video.controls = true;
             //USING GETUSERMEDIA TO ACCESS THE WEBCAM
             var webcam = document.createElement('video');
             webcam.width = 640;
@@ -45,7 +49,7 @@
                 } else {
                     onerror(new Error("No getUserMedia implementation found."));
                 }
-            };			
+            };
 			var controls = {//控制
 
 				moveForward: false,
@@ -55,11 +59,11 @@
 				jump: false,
 				attack: false,
 				crouch: false
-				
+
 			};
 			var configOgro = {//md2
 
-					baseUrl: "models/ogro/",
+					baseUrl: "Uploads/3DModel/ogro/",
 
 					body: "ogro-light.js",
 					skins: [ "grok.jpg", "ogrobase.png", "arboshak.png", "ctf_r.png", "ctf_b.png", "darkam.png", "freedom.png",
@@ -81,10 +85,10 @@
 
 				};
 			var character = new THREE.MD2CharacterComplex();
-			
-			
-			
-			
+
+
+
+
             var URL = window.URL || window.webkitURL;
             var createObjectURL = URL.createObjectURL || webkitURL.createObjectURL;
             if (!createObjectURL) {
@@ -114,14 +118,14 @@
                 GLCanvasWidth = window.innerWidth;
                 if(GLCanvasWidth/GLCanvasHeight > 4/3) {
                     GLCanvasHeight = GLCanvasWidth*3/4;
-					console.log("ppp "+ GLCanvasHeight);
+//					console.log("ppp "+ GLCanvasHeight);
                 } else {
                     GLCanvasWidth = GLCanvasHeight*4/3;
                 }
                 //  测试视频
-                var videoCanvas = document.createElement('canvas');
-                videoCanvas.width = video.width;
-                videoCanvas.height = video.width * 3 / 4;
+//                var videoCanvas = document.createElement('canvas');
+//                videoCanvas.width = video.width;
+//                videoCanvas.height = video.width * 3 / 4;
                 var canvas = document.createElement('canvas');
                 canvas.width = 320;
                 canvas.height = 240;
@@ -142,15 +146,15 @@
                 var param = new FLARParam(320, 240);
                 var resultMat = new NyARTransMatResult();
                 var detector = new FLARMultiIdMarkerDetector(param, 80);
-                detector.setContinueMode(true);								
-				md2_init();	
+                detector.setContinueMode(true);
+				md2_init();
                 // THREE.JS
                 var tmp = new Float32Array(16);
 				renderer.setSize(GLCanvasWidth, GLCanvasHeight);
                 var glCanvas = renderer.domElement;
                 var s = glCanvas.style;
                 document.body.appendChild(glCanvas);
-               
+
                 var light = new THREE.PointLight(0xffffff);
                 light.position.set(400, 500, 100);
                 scene.add(light);
@@ -172,7 +176,7 @@
                 webcamScene.add(webcamCam);
 
                 //  测试视频
-                var videoTex = new THREE.Texture(videoCanvas);
+//                var videoTex = new THREE.Texture(videoCanvas);
 
                 var lastTime = 0;
                 setInterval(function() {
@@ -183,8 +187,8 @@
                     canvas.changed = true;
                     camTex.needsUpdate = true;
 
-                    videoCanvas.getContext('2d').drawImage(video, 0, 0);
-                    videoTex.needsUpdate = true;
+//                    videoCanvas.getContext('2d').drawImage(video, 0, 0);
+//                    videoTex.needsUpdate = true;
                     var detected = detector.detectMarkerLite(raster, threshold);
                     for (var idx = 0; idx < detected; idx++) {
                         var id = detector.getIdMarkerData(idx);
@@ -197,8 +201,8 @@
                                 currId = (currId << 8) | id.getPacketData(i);
                             }
                         }
-                        console.log('currId='+currId);
-						
+//                        console.log('currId='+currId);
+
                         if (!markers[currId]) {
                             markers[currId] = {};
                         }
@@ -223,7 +227,7 @@
                             m.model = new THREE.Object3D();
                           	m.model.add(model_obj);
 							m.model.add(character.root);
-							console.log("model  positions: "+m.model.position.x+","+m.model.position.y+","+m.model.position.z);
+//							console.log("model  positions: "+m.model.position.x+","+m.model.position.y+","+m.model.position.z);
 							m.model.position.z=0;
 							m.model.matrixAutoUpdate = false;
                             scene.add(m.model); //add to scene
@@ -239,14 +243,14 @@
                     renderer.clear();
                     renderer.render(webcamScene, webcamCam);
                     renderer.render(scene, camera);
-					
+
                 },
                 8);    // 1000/15 fps
-				
+
 				projector = new THREE.Projector();
             }
 			
-			
+
             THREE.Matrix4.prototype.setFromArray = function(m) {
                 return this.set(m[0], m[4], m[8], m[12], m[1], m[5], m[9], m[13], m[2], m[6], m[10], m[14], m[3], m[7], m[11], m[15]);
             };
@@ -268,7 +272,7 @@
                 cm[14] = mat.m23;
                 cm[15] = 1;
             }
-				
+
 			var t = 0;
 			var clock = new THREE.Clock();
 			function md2_init(){
@@ -286,7 +290,7 @@
 					character.setSkin(5);
 				}
 				baseCharacter.loadParts( configOgro );
-				
+
 				var light = new THREE.DirectionalLight( 0xffffff, 2.25 );
 				light.position.set( 200, 450, 500 );
 
@@ -302,7 +306,7 @@
 				var delta = clock.getDelta();
 				requestAnimationFrame(md2_animate);
 				character.update(delta);
-				
+
 
 			}
 			var skin_index=5;
@@ -326,11 +330,11 @@
 					case 67: /*C*/     //controls.crouch = true; break;
 					skin_index++;
 					character.setSkin(skin_index%13);break;
-					case 17: /*ctrl*/  
+					case 17: /*ctrl*/
 					if(click_count%2)
-					character.setWireframe(true); 
+					character.setWireframe(true);
 					else
-					character.setWireframe(false); 
+					character.setWireframe(false);
 					click_count++;
 					break;
 
@@ -356,7 +360,7 @@
 
 					case 67: /*C*/     controls.crouch = false; break;
 					case 32: /*space*/ controls.jump = false; break;
-					case 17: /*ctrl*/  controls.attack = false; break; 
+					case 17: /*ctrl*/  controls.attack = false; break;
 
 				}
 
@@ -370,7 +374,7 @@
 					clickCount=0;
 					webcam.play();
 				}
-				
+
 			}
 
 			 // Jq
@@ -404,18 +408,14 @@
         
       <div class="dock" id="dock">
                 <div class="dock-container">
-                   <a class="dock-item" href="reading.html" ><img src="Image/imagineCup.jpg" alt="rss" /><span>Page #1</span></a>
-                    <a class="dock-item" href="reading.html" ><img src="Image/wow1.jpg" alt="rss" /><span>Page #2</span></a>
-                    <a class="dock-item" href="reading.html" ><img src="Image/click.jpg" alt="rss" /><span>Page #3</span></a>                    
-                    <a class="dock-item" href="#"><img src="Image/monster1.jpg" alt="rss" /><span>Page #4</span></a>
-                    <a class="dock-item" href="#" onClick="cutCamMethod()"><img src="Image/cutCam.png" alt="rss" /><span>Clip</span></a>
+                   <!--<a class="dock-item" href="reading.html" ><img src="Image/imagineCup.jpg" alt="rss" /><span>Page #1</span></a>-->
+                    <!--<a class="dock-item" href="reading.html" ><img src="Image/wow1.jpg" alt="rss" /><span>Page #2</span></a>-->
+                    <!--<a class="dock-item" href="reading.html" ><img src="Image/click.jpg" alt="rss" /><span>Page #3</span></a>                    -->
+                    <!--<a class="dock-item" href="#"><img src="Image/monster1.jpg" alt="rss" /><span>Page #4</span></a>-->
+
+                    <a class="dock-item" href="#" onClick="cutCamMethod()"><img src="Images/cutCam.png" alt="Cut" /><span>Clip</span></a>
                 </div>
-            </div>
         </div>
-        <!--<video id="video" autoplay style="display:none">-->
-            <!--<source src="textures/sintel.mp4" type='video/mp4; codecs="avc1.42E01E, mp4a.40.2"'>-->
-            <!--<source src="textures/sintel.ogv" type='video/ogg; codecs="theora, vorbis"'>-->
-        <!--</video>-->
     </body>
 
 </html>

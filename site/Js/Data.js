@@ -8,155 +8,427 @@
 
 AR.Data = function(Models) {
 
-    // imagine cup 视频
-    this.loadPage1 = function() {
-        Models.clearModels();
+    var cache = {};
+    var cacheMax = 5;
 
-        // movie
-        var movieHeight = 400;
-        var movieModel = Models.createModel(AR.Models.ModelType.video, movieHeight*672/378, movieHeight, {
-            src: 'Uploads/ImagineCup.mp4',
-            width: 672,
-            height: 378,
-            isLoop: true
-        }); //672 × 378
+    // 数据
+    var pages = [
 
-        movieModel.obj.position.x = -240;
-        movieModel.obj.position.y = 296;
+        // page
+        {
+            markerId: 0,
+            models: [
+                {
+                    modelType: AR.Models.ModelType.video,
+                    modelWidth: 400 *672/378,
+                    modelHeight: 400,
+                    modelLeftTopX: 0,
+                    modelLeftTopY: 339,
+                    markerLeftTopX: 550,
+                    markerLeftTopY: 773,
+                    markerSize: 120,    // 在硬质媒体上，印有marker的大小
+                    attach: {
+                        src: 'Uploads/Movie/ImagineCup.mp4',
+//                        src: 'https://github.com/tclh123/ARReading-Html5/blob/master/site/Uploads/Movie/ImagineCup.mp4?raw=true',
+                        width: 672,
+                        height: 378,
+                        isLoop: true
+                    },
+                    clickEventCallback: function(e){    // TODO: 要上线的话，这里要提供固定的几种clickEventCallback。
+                        if(e.clickCount%2)
+                            e.domElement.play();
+                        else
+                            e.domElement.pause();
+                    }
+                }
+            ]
+        },
 
-        Models.addModel(0, movieModel, function(e){
-            if(e.clickCount%2)
-                e.domElement.play();
-            else
-                e.domElement.pause();
-        });
+        // page
+        {
+            markerId: 1,
+            models: [
+                {
+                    modelType: AR.Models.ModelType.audio,
+                    modelWidth: 123,
+                    modelHeight: 129,
+                    modelLeftTopX: 20,
+                    modelLeftTopY: 221,
+                    markerLeftTopX: 400,
+                    markerLeftTopY: 615,
+                    markerSize: 80,
+                    attach: {
+                        src: 'Uploads/Audio/noun.mp3',
+                        isAutoplay: false,
+                        imageTexSrc: 'Uploads/Image/blank.png'
+                    },
+                    clickEventCallback: function(e){            // TODO: 要上线的话，这里要提供固定的几种clickEventCallback。
+                        if(e.clickCount%2){
+                            e.domElement.play();
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/continue.png');
+                        }
+                        else{
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/blank.png');
+                        }
+                    }
+                },
+
+                {
+                    modelType: AR.Models.ModelType.audio,
+                    modelWidth: 116,
+                    modelHeight: 137,
+                    modelLeftTopX: 383,
+                    modelLeftTopY: 262,
+                    markerLeftTopX: 400,
+                    markerLeftTopY: 615,
+                    markerSize: 80,
+                    attach: {
+                        src: 'Uploads/Audio/pronoun.mp3',
+                        isAutoplay: false,
+                        imageTexSrc: 'Uploads/Image/blank.png'
+                    },
+                    clickEventCallback: function(e){
+                        if(e.clickCount%2){
+                            e.domElement.play();
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/continue.png');
+                        }
+                        else{
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/blank.png');
+                        }
+                    }
+                },
+
+                {
+                    modelType: AR.Models.ModelType.audio,
+                    modelWidth: 96,
+                    modelHeight: 76,
+                    modelLeftTopX: 37,
+                    modelLeftTopY: 352,
+                    markerLeftTopX: 400,
+                    markerLeftTopY: 615,
+                    markerSize: 80,
+                    attach: {
+                        src: 'Uploads/Audio/adjective.mp3',
+                        isAutoplay: false,
+                        imageTexSrc: 'Uploads/Image/blank.png'
+                    },
+                    clickEventCallback: function(e){
+                        if(e.clickCount%2){
+                            e.domElement.play();
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/continue.png');
+                        }
+                        else{
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/blank.png');
+                        }
+                    }
+                },
+
+                {
+                    modelType: AR.Models.ModelType.audio,
+                    modelWidth: 247,
+                    modelHeight: 406,
+                    modelLeftTopX: 140,
+                    modelLeftTopY: 250,
+                    markerLeftTopX: 400,
+                    markerLeftTopY: 615,
+                    markerSize: 80,
+                    attach: {
+                        src: 'Uploads/Audio/Text.mp3',
+                        isAutoplay: false,
+                        imageTexSrc: 'Uploads/Image/blank.png'
+                    },
+                    clickEventCallback: function(e){
+                        if(e.clickCount%2){
+                            e.domElement.play();
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/continue.png');
+                        }
+                        else{
+                            e.domElement.pause();
+                            e.obj.material.map =  THREE.ImageUtils.loadTexture('Uploads/Image/blank.png');
+                        }
+                    }
+                }
+
+            ]
+        },
+
+        // TODO: 改成 monsterCtr
+        // // page
+        // {
+        //     markerId: 2,
+        //     models: [
+        //         {           // TODO ， obj3d 类型 的 Model。 待数据化
+        //             modelType: AR.Models.ModelType.obj3d,
+
+        //             modelMidX: 252,
+        //             modelMidY: 331,
+        //             markerLeftTopX: 363,
+        //             markerLeftTopY: 548,
+        //             markerSize: 80,
+
+        //             attach: {
+        //                 loader: new THREE.BinaryLoader(),
+        //                 url: 'Uploads/3DModel/veyron/VeyronNoUv_bin.js',
+        //                 material: new THREE.MeshFaceMaterial([
+        //                     AR.Data.mlib[ "Black rough" ],		// tires + inside
+        //                     AR.Data.mlib[ "Pure chrome" ],		// wheels + extras chrome
+        //                     AR.Data.mlib[ "Orange metal" ], 			// back / top / front torso
+        //                     AR.Data.mlib[ "Dark glass" ],		// glass
+        //                     AR.Data.mlib[ "Pure chrome" ],		// sides torso
+        //                     AR.Data.mlib[ "Pure chrome" ],		// engine
+        //                     AR.Data.mlib[ "Red glass 50" ],		// backlights
+        //                     AR.Data.mlib[ "Orange glass 50" ]	// backsignals
+        //                 ]),
+        //                 scale: 2,
+        //                 rotation: [0, Math.PI/2, 0],
+        //                 callback: function(model) {    // TODO: 这个callback，应该放在处理数据的地方
+        //                     model.obj.position.x = -240;
+        //                     model.obj.position.y = 356+100;
+        //                     Models.addModel(2, model);
+        //                 }
+        //             }
+        //         }
+        //     ]
+        // },
+
+        // page         // 新加的，待测试！
+        {
+            markerId: 3,
+            models: [
+                {           // TODO ， obj3d 类型 的 Model。 待数据化
+                    modelType: AR.Models.ModelType.obj3d,
+
+                    modelMidX: 597/2,
+                    modelMidY: 704/2,
+                    markerLeftTopX: 59+50,
+                    markerLeftTopY: 67+50,
+                    markerSize: 100,
+
+                    attach: {
+                        loader: new THREE.BinaryLoader(),
+                        url: 'Uploads/3DModel/veyron/VeyronNoUv_bin.js',
+                        material: new THREE.MeshFaceMaterial([
+                            AR.Data.mlib[ "Black rough" ],      // tires + inside
+                            AR.Data.mlib[ "Pure chrome" ],      // wheels + extras chrome
+                            AR.Data.mlib[ "Orange metal" ],             // back / top / front torso
+                            AR.Data.mlib[ "Dark glass" ],       // glass
+                            AR.Data.mlib[ "Pure chrome" ],      // sides torso
+                            AR.Data.mlib[ "Pure chrome" ],      // engine
+                            AR.Data.mlib[ "Red glass 50" ],     // backlights
+                            AR.Data.mlib[ "Orange glass 50" ]   // backsignals
+                        ]),
+                        scale: 2,
+                        rotation: [0, Math.PI/2, 0],
+                        callback: function(model) {    // TODO: 这个callback，应该放在处理数据的地方
+
+                            var scale = MARKER_SIZE/100;
+                            var offsetX = ((109+100/2)-(597/2))*scale;
+                            var offsetY = ((117+100/2)-(704/2))*scale;
+
+                            model.obj.position.x = -offsetX;
+                            model.obj.position.y = offsetY;
+
+                            // model.obj.position.x = -240;
+                            // model.obj.position.y = 356+100;
+                            Models.addModel(3, model);
+                        }
+                    }
+                }
+            ]
+        }
+
+    ];
+
+    this.getPage = function(markerId) {
+        for(var i in pages) {
+            if(pages[i].markerId == markerId) {
+                return pages[i];
+            }
+        }
+        return null;
     };
 
-    // 魔兽视频
-    this.loadPage2 = function() {
-        Models.clearModels();
+    // 通用接口
+    this.loadPage = function(markerId) {
 
-        // movie
-        var movieHeight = 400;
-        var movieModel = Models.createModel(AR.Models.ModelType.video, movieHeight*592/252, movieHeight, {
-            src: 'Uploads/wow.mp4',
-            width: 592,
-            height: 252,
-            isLoop: true
-        }); //592 × 252
+        // 没命中
+        if(!cache[markerId]) {
 
-        movieModel.obj.position.x = 60;
-        movieModel.obj.position.y = 300;
+            // 根据 markerId 获取 page，加载 models
+            var page = this.getPage(markerId);
+            if(page && page.models) {
 
-        Models.addModel(4, movieModel, function(e){
-            if(e.clickCount%2)
-                e.domElement.play();
-            else
-                e.domElement.pause();
-        });
+                // TODO: cache strateges，现在是全清空
+                // TODO
+                // 点击事件没法处理干净...先都清空吧...
+//                if(propertyCount(cache) > cacheMax) {
+
+                if(propertyCount(cache) > 0) {
+                    Models.clearModels();
+
+                    for(var i in cache) {
+                        delete cache[i];
+                    }
+                }
+
+                cache[markerId] = {};
+                cache[markerId].used = 0;
+
+                for(var i in page.models) {
+                    var modelData = page.models[i];
+
+                    if(modelData.modelType == AR.Models.ModelType.obj3d) {  //   模型要用callback
+                        var model3d = Models.createModel(modelData.modelType, 0, 0, modelData.attach);
+
+                    } else {
+                        var model = Models.createModel(modelData.modelType, modelData.modelWidth, modelData.modelHeight, modelData.attach);
+
+                        var scale = MARKER_SIZE/modelData.markerSize;
+                        var offsetX = ((modelData.markerLeftTopX+modelData.markerSize/2)-(modelData.modelLeftTopX+modelData.modelWidth/2))*scale;
+                        var offsetY = ((modelData.markerLeftTopY+modelData.markerSize/2)-(modelData.modelLeftTopY+modelData.modelHeight/2))*scale;
+
+                        model.obj.position.x = -offsetX;
+                        model.obj.position.y = offsetY;
+
+                        Models.addModel(page.markerId, model, modelData.clickEventCallback);
+                    }
+                }
+            }
+        } else {
+            cache[markerId].used++;
+        }
     };
 
-    // 点读机
-    this.loadPage3 = function() {
-        Models.clearModels();
+    //////////////////////////////////////////////////////
 
 
-        // audio-1
-        var audioModel1 = Models.createModel(AR.Models.ModelType.audio, 123, 129, {
-            src: 'Uploads/noun.mp3',
-            isAutoplay: false,
-            imageTexSrc: 'textures/blank.png'
-        });
+//    // imagine cup 视频
+//    this.loadPage1 = function() {
+//        Models.clearModels();
+//
+//        // 根据 markerId 获取 page，加载 models
+//        var page = this.getPage(0);
+//        if(page && page.models) {
+//            for(var i in page.models) {
+//                var modelData = page.models[i];
+//
+//                var model = Models.createModel(modelData.modelType, modelData.modelWidth, modelData.modelHeight, modelData.attach);
+//
+//                var scale = MARKER_SIZE/modelData.markerSize;
+//                var offsetX = ((modelData.markerLeftTopX+modelData.markerSize/2)-(modelData.modelLeftTopX+modelData.modelWidth/2))*scale;
+//                var offsetY = ((modelData.markerLeftTopY+modelData.markerSize/2)-(modelData.modelLeftTopY+modelData.modelHeight/2))*scale;
+//
+//                model.obj.position.x = -offsetX;
+//                model.obj.position.y = offsetY;
+//
+//                Models.addModel(page.markerId, model, modelData.clickEventCallback);
+//            }
+//        }
+//    };
+//
+//    // Car Models
+//    this.loadPage2 = function() {
+//        Models.clearModels();
+//
+//        // TODO
+//        // 模型要用callback，暂时特殊处理...
+//        // 并根据模型选择Loader...
+//
+//        // obj3d
+//        var model3d = Models.createModel(AR.Models.ModelType.obj3d, 0, 0, {
+//            loader: new THREE.BinaryLoader(),
+//            url:'Uploads/3DModel/veyron/VeyronNoUv_bin.js',
+//            material: new THREE.MeshFaceMaterial([
+//                AR.Data.mlib[ "Black rough" ],		// tires + inside
+//                AR.Data.mlib[ "Pure chrome" ],		// wheels + extras chrome
+//                AR.Data.mlib[ "Orange metal" ], 			// back / top / front torso
+//                AR.Data.mlib[ "Dark glass" ],		// glass
+//                AR.Data.mlib[ "Pure chrome" ],		// sides torso
+//                AR.Data.mlib[ "Pure chrome" ],		// engine
+//                AR.Data.mlib[ "Red glass 50" ],		// backlights
+//                AR.Data.mlib[ "Orange glass 50" ]	// backsignals
+//            ]),
+//            scale: 2,
+//            rotation: [0, Math.PI/2, 0],
+//            callback: function(model) {
+////                model.obj.position.x = -240;
+////                model.obj.position.y = 296;
+//                model.obj.position.x = -240;
+//                model.obj.position.y = 356+100;
+//                Models.addModel(2, model);
+//            }
+//        });
+//
+//    };
+//
+//    // 点读机
+//    this.loadPage3 = function() {
+//        Models.clearModels();
+//
+//        // 根据 markerId 获取 page，加载 models
+//        var page = this.getPage(1);
+//        if(page && page.models) {
+//            for(var i in page.models) {
+//                var modelData = page.models[i];
+//
+//                var model = Models.createModel(modelData.modelType, modelData.modelWidth, modelData.modelHeight, modelData.attach);
+//
+//                var scale = MARKER_SIZE/modelData.markerSize;
+//                var offsetX = ((modelData.markerLeftTopX+modelData.markerSize/2)-(modelData.modelLeftTopX+modelData.modelWidth/2))*scale;
+//                var offsetY = ((modelData.markerLeftTopY+modelData.markerSize/2)-(modelData.modelLeftTopY+modelData.modelHeight/2))*scale;
+//
+//                model.obj.position.x = -offsetX;
+//                model.obj.position.y = offsetY;
+//
+//                Models.addModel(page.markerId, model, modelData.clickEventCallback);
+//            }
+//        }
+//    };
 
-        var scale = 120/80;
-        var offsetX = ((400+80/2)-(20+123/2))*scale;
-        var offsetY = ((615+80/2)-(221+129/2))*scale;
+};
 
-        audioModel1.obj.position.x = -offsetX;
-        audioModel1.obj.position.y = offsetY;
+// test Materials
+AR.Data.mlib = {
 
-        Models.addModel(1, audioModel1, function(e){
-            if(e.clickCount%2){
-                e.domElement.play();
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/continue.png');
-            }
-            else{
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/blank.png');
-            }
-        });
+    "Orange": 	new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0xff2200, combine: THREE.MixOperation, reflectivity: 0.3 } ),
+    "Blue": 	new THREE.MeshLambertMaterial( { color: 0x001133, ambient: 0x001133, combine: THREE.MixOperation, reflectivity: 0.3 } ),
+    "Red": 		new THREE.MeshLambertMaterial( { color: 0x660000, ambient: 0x330000, combine: THREE.MixOperation, reflectivity: 0.25 } ),
+    "Black": 	new THREE.MeshLambertMaterial( { color: 0x000000, ambient: 0x000000, combine: THREE.MixOperation, reflectivity: 0.15 } ),
+    "White":	new THREE.MeshLambertMaterial( { color: 0xffffff, ambient: 0x666666, combine: THREE.MixOperation, reflectivity: 0.25 } ),
 
-        // audio-2
-        var audioModel2 = Models.createModel(AR.Models.ModelType.audio, 116, 137, {
-            src: 'Uploads/pronoun.mp3',
-            isAutoplay: false,
-            imageTexSrc: 'textures/blank.png'
-        });
+    "Carmine": 	new THREE.MeshPhongMaterial( { color: 0x770000, specular:0xffaaaa, combine: THREE.MultiplyOperation } ),
+    "Gold": 	new THREE.MeshPhongMaterial( { color: 0xaa9944, specular:0xbbaa99, shininess:50, combine: THREE.MultiplyOperation } ),
+    "Bronze":	new THREE.MeshPhongMaterial( { color: 0x150505, specular:0xee6600, shininess:10, combine: THREE.MixOperation, reflectivity: 0.25 } ),
+    "Chrome": 	new THREE.MeshPhongMaterial( { color: 0xffffff, specular:0xffffff, combine: THREE.MultiplyOperation } ),
 
-        scale = 120/80;
-        offsetX = ((400+80/2)-(383+116/2))*scale;
-        offsetY = ((615+80/2)-(262+137/2))*scale;
+    "Orange metal": new THREE.MeshLambertMaterial( { color: 0xff6600, ambient: 0xff2200, combine: THREE.MultiplyOperation } ),
+    "Blue metal": 	new THREE.MeshLambertMaterial( { color: 0x001133, ambient: 0x002266, combine: THREE.MultiplyOperation } ),
+    "Red metal": 	new THREE.MeshLambertMaterial( { color: 0x770000, combine: THREE.MultiplyOperation } ),
+    "Green metal": 	new THREE.MeshLambertMaterial( { color: 0x007711, combine: THREE.MultiplyOperation } ),
+    "Black metal":	new THREE.MeshLambertMaterial( { color: 0x222222, combine: THREE.MultiplyOperation } ),
 
-        audioModel2.obj.position.x = -offsetX;
-        audioModel2.obj.position.y = offsetY;
+    "Pure chrome": 	new THREE.MeshLambertMaterial( { color: 0xffffff } ),
+    "Dark chrome":	new THREE.MeshLambertMaterial( { color: 0x444444 } ),
+    "Darker chrome":new THREE.MeshLambertMaterial( { color: 0x222222 } ),
 
-        Models.addModel(1, audioModel2, function(e){
-            if(e.clickCount%2){
-                e.domElement.play();
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/continue.png');
-            }
-            else{
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/blank.png');
-            }
-        });
+    "Black glass": 	new THREE.MeshLambertMaterial( { color: 0x101016, opacity: 0.975, transparent: true } ),
+    "Dark glass":	new THREE.MeshLambertMaterial( { color: 0x101046, opacity: 0.25, transparent: true } ),
+    "Blue glass":	new THREE.MeshLambertMaterial( { color: 0x668899, opacity: 0.75, transparent: true } ),
+    "Light glass":	new THREE.MeshBasicMaterial( { color: 0x223344, opacity: 0.25, transparent: true, combine: THREE.MixOperation, reflectivity: 0.25 } ),
 
-        // audio-3
-        var audioModel3 = Models.createModel(AR.Models.ModelType.audio, 96, 76, {
-            src: 'Uploads/adjective.mp3',
-            isAutoplay: false,
-            imageTexSrc: 'textures/blank.png'
-        });
+    "Red glass":	new THREE.MeshLambertMaterial( { color: 0xff0000, opacity: 0.75, transparent: true } ),
+    "Yellow glass":	new THREE.MeshLambertMaterial( { color: 0xffffaa, opacity: 0.75, transparent: true } ),
+    "Orange glass":	new THREE.MeshLambertMaterial( { color: 0x995500, opacity: 0.75, transparent: true } ),
 
-        scale = 120/80;
-        offsetX = ((400+80/2)-(37+96/2))*scale;
-        offsetY = ((615+80/2)-(352+76/2))*scale;
+    "Orange glass 50":	new THREE.MeshLambertMaterial( { color: 0xffbb00, opacity: 0.5, transparent: true } ),
+    "Red glass 50": 	new THREE.MeshLambertMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } ),
 
-        audioModel3.obj.position.x = -offsetX;
-        audioModel3.obj.position.y = offsetY;
+    "Fullblack rough":	new THREE.MeshLambertMaterial( { color: 0x000000 } ),
+    "Black rough":		new THREE.MeshLambertMaterial( { color: 0x050505 } ),
+    "Darkgray rough":	new THREE.MeshLambertMaterial( { color: 0x090909 } ),
+    "Red rough":		new THREE.MeshLambertMaterial( { color: 0x330500 } ),
 
-        Models.addModel(1, audioModel3, function(e){
-            if(e.clickCount%2){
-                e.domElement.play();
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/continue.png');
-            }
-            else{
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/blank.png');
-            }
-        });
-
-        // audio-4
-        var audioModel4 = Models.createModel(AR.Models.ModelType.audio, 247, 406, {
-            src: 'Uploads/Text.mp3',
-            isAutoplay: false,
-            imageTexSrc: 'textures/blank.png'
-        });
-
-        scale = 120/80;
-        offsetX = ((400+80/2)-(140+247/2))*scale;
-        offsetY = ((615+80/2)-(250+406/2))*scale;
-
-        audioModel4.obj.position.x = -offsetX;
-        audioModel4.obj.position.y = offsetY;
-
-        Models.addModel(1, audioModel4, function(e){
-            if(e.clickCount%2){
-                e.domElement.play();
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/continue.png');
-            }
-            else{
-                e.domElement.pause();
-                e.obj.material.map =  THREE.ImageUtils.loadTexture('textures/blank.png');
-            }
-        });
-    };
+    "Darkgray shiny":	new THREE.MeshPhongMaterial( { color: 0x000000, specular: 0x050505 } ),
+    "Gray shiny":		new THREE.MeshPhongMaterial( { color: 0x050505, shininess: 20 } )
 
 };

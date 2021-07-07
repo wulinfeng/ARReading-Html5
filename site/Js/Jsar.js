@@ -5,7 +5,7 @@
  * Time: 上午11:03
  * Copyright (C)2012 Inception Team
  */
-AR.Jsar = function(canvas, width, height, threshold, slowness){
+AR.Jsar = function(canvas, width, height, markerSize, threshold, slowness){
     this.canvas = canvas;
     this.width = width;
     this.height = height;
@@ -15,7 +15,7 @@ AR.Jsar = function(canvas, width, height, threshold, slowness){
     //
     var raster = new NyARRgbRaster_Canvas2D(this.canvas);        //[!!]  给canvas 给 AR，
     var param = new FLARParam(this.width, this.height);
-    var detector = new FLARMultiIdMarkerDetector(param, 120);   //marker size
+    var detector = new FLARMultiIdMarkerDetector(param, markerSize);   //marker size
     detector.setContinueMode(true);
 
     this.getARMat = function(){
@@ -53,15 +53,17 @@ AR.Jsar = function(canvas, width, height, threshold, slowness){
         // tracking. age-algorithm
         for (var i in markers) {
             var r = markers[i];
-            //if (r.age > 1) {
+//            if (r.age > 1) {
+
+//            console.log('id='+i+', age='+ r.age);
             if (r.age > this.slowness) {   //越大越缓和
                 delete markers[i];
-                scene.remove(r.model);
+                scene.remove(r.model);  // idMarker.model 是 render时加的属性
             }
             r.age++;
         }
         return markers;
-    }
+    };
 
     // 16 array -> 4x4 mat
     THREE.Matrix4.prototype.setFromArray = function(m) {

@@ -48,6 +48,15 @@ AR.Models = function(projector, camera){
 
         if(modelType == AR.Models.ModelType.video) {
             var video = document.createElement('video');
+
+            video.addEventListener("loadstart", function() {
+                $('#loadinggif').show();
+            }, false);
+            video.addEventListener("canplay", function() {
+                $('#loadinggif').hide();
+            }, false);
+
+
             video.src = attach.src;
             video.width = attach.width || 320;
             video.height = attach.height || 240;
@@ -64,34 +73,91 @@ AR.Models = function(projector, camera){
             model['domElement'] = video;
             model['canvas'] = videoCanvas;
             model['texture'] = videoTex;
-            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height, 0), new THREE.MeshBasicMaterial({
-                map: videoTex
+            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+                map: videoTex,
+//                overdraw: true,             // overdraw
+                side: THREE.DoubleSide
             }));
         } else if(modelType == AR.Models.ModelType.audio) {
+
+            // 放到前面，避免被阻塞?？
+            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+                map: THREE.ImageUtils.loadTexture(attach.imageTexSrc),
+//                overdraw: true,             // overdraw
+                transparent: true,
+                side: THREE.DoubleSide
+            }));
+
             var audio = document.createElement('audio');
+
+            audio.addEventListener("loadstart", function() {
+                $('#loadinggif').show();
+            }, false);
+            audio.addEventListener("canplay", function() {
+                $('#loadinggif').hide();
+            }, false);
+
             audio.autoplay = attach.isAutoplay || false;
             audio.src = attach.src;
 
             model['domElement'] = audio;
-            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height, 0), new THREE.MeshBasicMaterial({
-                map: THREE.ImageUtils.loadTexture(attach.imageTexSrc)
-            }));
+
         } else if(modelType == AR.Models.ModelType.picture) {
-            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height, 0), new THREE.MeshBasicMaterial({
-                map: THREE.ImageUtils.loadTexture(attach.imageTexSrc)
+            model['obj'] = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({
+                map: THREE.ImageUtils.loadTexture(attach.imageTexSrc),
+//                overdraw: true,             // overdraw
+                transparent: true,
+                side: THREE.DoubleSide
             }));
+
+        } else if(modelType == AR.Models.ModelType.obj3d) {
+            var loader = attach.loader;
+
+            $('#loadinggif').show();
+            loader.load( attach.url,
+                function( e ) {
+                    $('#loadinggif').hide();
+
+                    var obj;
+                    if(e instanceof THREE.Geometry) {
+                        // material
+                        obj = new THREE.Mesh(e, attach.material ); //Material
+                    } else if(e instanceof THREE.Object3D) {
+                        obj = e;
+                        // texture
+                        // need to deal with Object3D.children(mesh).material.map <- texture
+                    }
+
+                    if(attach.rotation) {
+                        obj.rotation.x = attach.rotation[ 0 ];
+                        obj.rotation.y = attach.rotation[ 1 ];
+                        obj.rotation.z = attach.rotation[ 2 ];
+                    }
+                    if(attach.scale) {
+                        obj.scale.x = obj.scale.y = obj.scale.z = attach.scale;
+                    }
+
+                    model['obj'] = obj;
+
+                    attach.callback(model);
+                }
+            );
         }
 
         return model;
     };
 
     //加Model
-    this.addModel = function(idMarker, model, onclick){
+    this.addModel = function(idMarker, model, onclick, onhover, nohover){
 
         model['idMarker'] = idMarker;
 
         model['onclick'] = onclick || function(){};
+        model['onhover'] = onhover || function(){};
+        model['nohover'] = nohover || function(){};
         model['clickCount'] = 0;
+
+        model.obj.idx = this._models.length;    // 维护下标
 
         this._models.push(model);
         this._objects.push(model.obj);
@@ -101,7 +167,8 @@ AR.Models = function(projector, camera){
     this.getModel = function(idMarker){
         var ret = [];
         for(var i in this._models){
-            if(this._models[i].idMarker == idMarker){
+            if(this._models[i].idMarker == idMarker){   // MarkerId
+
                 //console.log('find'+this._models[i].idMarker);
                  ret.push(this._models[i].obj);
             }
@@ -111,21 +178,19 @@ AR.Models = function(projector, camera){
 
     //相交物体
     this.intersect = function(ray){
-        var intersects = ray.intersectObjects( this._objects );
+        var intersects = ray.intersectObjects( this._objects );   // 不能用 scene.children，因为每个page其实只有一个Object3D（里面又有小obj）
+
         if ( intersects.length > 0 ) {
-            //for ( var i = 0, l = this._objects.length; i < l; i ++ ) {
             for(var i in this._objects){
-                //console.log('searching');
                 if(intersects[ 0 ].object == this._objects[i]){
-                    //console.log('yes='+i);
                     var id = i;
                     break;
                 }
             }
-            this._models[id].clickCount++;
-            this._models[id].onclick(this._models[id]);
-            return intersects[ 0 ].point;
+
+            return id;
         }
+        return -1;
     }
 };
 
